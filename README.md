@@ -6,6 +6,7 @@ The scripts included in this repo are:
 + dm-colpick - Copy a color's hex value to your clipboard
 + dm-confedit - Choose from a list of configuration files to edit.
 + dm-currencies - Convert prices between currencies.
++ dm-dictionary - Simple dictionary script
 + dm-hub - A hub from where you can run all the scripts from.
 + dm-ip - Get IP of interface or external IP
 + dm-kill - Search for a process to kill.
@@ -19,6 +20,7 @@ The scripts included in this repo are:
 + dm-reddit - Dmenu as a reddit viewer using reddio. *STILL A WORK IN PROGRESS*
 + dm-setbg - A wallpaper setting utility using dmenu, xwallpaper and sxiv
 + dm-sounds - Choose an ambient background to play.
++ dm-spellcheck - Script to check spellings
 + dm-translate - Translate using Google Translate (through Lingva Translate)
 + dm-usbmount - mount/unmount usb drives using dmenu. No fancy daemon required
 + dm-weather - Simple graphical weather app
