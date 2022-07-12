@@ -40,6 +40,8 @@ A manual page searcher, search a man page or randomly view one.
 Dmenu based music player.
 ** dm-note
 Store multiple one-line texts or codes and copy one of them when needed.
+** dm-pipewire-out-switcher
+Switch default output for pipewire
 ** dm-radio
 Listen to online radio stations.
 ** dm-record

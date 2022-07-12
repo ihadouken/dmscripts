@@ -15,6 +15,7 @@ optdepends=(
   'emacs: editor for dm-confedit'
   'libnotify: used by dm-logout'
   'maim: used by dm-main'
+  'pipewire: used by dm-pipewire-out-switcher'
   'mpc: used by dm-music'
   'mpd: used by dm-music'
   'qutebrowser: used by dm-bookman'
