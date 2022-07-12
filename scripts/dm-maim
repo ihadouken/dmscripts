@@ -110,9 +110,11 @@ main() {
   delay=$(printf '%s\n' "$(seq 0 5)" | ${DMENU} 'Delay (in seconds):' "$@" ) || exit 1
   if [ ! "${delay}" -eq "0" ]; then
     _maim_args="${_maim_args} --delay=${delay}"
+  else
+    _maim_args="${_maim_args} --delay=0.5"
   fi
 
-  _maim_args="${_maim_args} -qd 0.5"
+  _maim_args="${_maim_args} -q"
   local destination=( "File" "Clipboard" "Both" )
   dest=$(printf '%s\n' "${destination[@]}" | ${DMENU} 'Destination:' "$@" ) || exit 1
   case "$dest" in
