@@ -25,7 +25,9 @@ fi
 source "$(get_config)"
 
 get_all_sinks() {
-  pactl --format=json list short sinks | jq -r '.[] | if .state == "RUNNING" then .state="*" else .state="" end | .state + .name'
+  pactl --format=json list short sinks |\
+    current=$(pactl --format=json info | jq -r '.default_sink_name' ) \
+    jq -r '.[] | if .name == env.current then .state="* " else .state="" end | .state + .name'
 }
 
 get_default_sink() {
@@ -38,7 +40,7 @@ main() {
       ${DMENU} 'Sink: ' "$@") || exit 1
 
       if [ "$choice" ]; then
-        if [[ "${choice}" == "*$(get_default_sink)" ]]; then
+        if [[ "${choice}" == "* $(get_default_sink)" ]]; then
           exit 0
         fi
         pactl set-default-sink "${choice}"
