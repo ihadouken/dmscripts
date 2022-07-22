@@ -24,14 +24,12 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
-get_all_sinks() {
-  pactl --format=json list short sinks |\
-    current=$(pactl --format=json info | jq -r '.default_sink_name' ) \
-    jq -r '.[] | if .name == env.current then .state="* " else .state="" end | .state + .name'
-}
-
 get_default_sink() {
   pactl --format=json info | jq -r .default_sink_name 
+}
+get_all_sinks() {
+  pactl --format=json list short sinks |\
+    current=$(get_default_sink) jq -r '.[] | if .name == env.current then .state="* " else .state="" end | .state + .name'
 }
 
 main() {
