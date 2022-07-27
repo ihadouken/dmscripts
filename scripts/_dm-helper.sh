@@ -49,7 +49,6 @@ get_config() {
     if [[ -f ${conf} ]]; then
       echo "${conf}"
       return
-      break
     fi
   done
 }
