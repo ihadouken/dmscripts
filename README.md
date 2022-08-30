@@ -7,6 +7,7 @@ The scripts included in this repo are:
 + dm-confedit - Choose from a list of configuration files to edit.
 + dm-currencies - Convert prices between currencies.
 + dm-dictionary - Simple dictionary script
++ dm-documents - Searches for pdf files and opens them with the pdf viewer
 + dm-hub - A hub from where you can run all the scripts from.
 + dm-ip - Get IP of interface or external IP
 + dm-kill - Search for a process to kill.
