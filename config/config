@@ -11,6 +11,8 @@
 
 DMENU="dmenu -i -l 20 -p"
 
+PDF_VIEWER="zathura"
+
 DMBROWSER="brave"
 # DMBROWSER="qutebrowser"
 
