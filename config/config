@@ -268,7 +268,11 @@ case "${0#*-}" in
         ;;
 
     "emoji")
-        emoji_file="$XDG_DATA_HOME/dm-emoji/emoji_list"
+        emoji_file="$XDG_DATA_HOME/dm-emoji/emoji_list" ;;
+
+    "usbmount")
+        err_icon='/usr/share/icons/elementary/devices/24/drive-harddisk.svg'
+        success_icon='/usr/share/icons/Dracula/apps/scalable/drive-removable-media.svg' ;;
   *);;
 esac
 

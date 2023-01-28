@@ -45,7 +45,7 @@ mountAll(){
 unmountAll(){
     while IFS= read -r drive
     do
-        udisksctl unmount -b "$drive"
+        udisksctl unmount -b "${drive%% *}"
     # done < <(printf '%s\n' "$mounted")
     done < <(printf '%s\n' "${mounted%%* }")
 }
@@ -53,33 +53,36 @@ unmountAll(){
 mount(){
     mountable="$(lsblk -lp | awk '/^\/dev\/sd.*part $/ { print $1 " ("$4")" }')"
     [ "$mountable" = "" ] && exit 1
-
     driveCount "$mountable"
-    [ "$count" = "1" ] && options="$mountable" || options="$mountable\nall"
+    [ "$count" = "1" ] && options="$mountable" || options="$mountable
+all"
 
     chosen="$(printf '%s' "$options" | ${DMENU} "Drive to mount?")" || exit 1
     if [ "$chosen" = "all" ]; then
-       mountAll 
+        mountAll 
     else 
-        udisksctl mount -b "${chosen%% *}"
+        udisksctl mount -b "${chosen%% *}" && \
+        notify-send -u low -i $sucess_icon "${chosen%% *} has been mounted." || \
+        notify-send -u low -i $err_icon "Couldn't mount ${chosen%% *}."
     fi
 }
 
 unmount(){
     # mounted="$(lsblk -lp | awk '/run/ { print $1 }')"
-    mounted="$(lsblk -lp | grep 'run' )"
-    [ "$mounted" = "" ] && exit 1
-
+    mounted="$(lsblk -lp | grep 'run' )" || (notify-send -u low -i $err_icon "No drives to unmount" && exit 0)
     # driveCount "$mounted"
     driveCount "${mounted%%* }"
     # [ "$count" = "1" ] && options="$mounted" || options="$mounted\nall"
-    [ "$count" = "1" ] && options="${mounted%%* }" || options="${mounted%%* }\nall"
+    [ "$count" = "1" ] && options="${mounted%%* }" || options="${mounted%%* }
+all"
 
-    chosen="$(printf '%s' "${options}" | ${DMENU} "Drive to unmount?")"
+    chosen="$(printf '%s' "${options}" | ${DMENU} "Drive to unmount?" | awk '{print $1}')"
     if [ "$chosen" = "all" ] ; then 
-       unmountAll 
-   else
-       udisksctl unmount -b "$chosen"
+        unmountAll
+    else
+        udisksctl unmount -b "$chosen" && \
+        notify-send -u low -i $sucess_icon "${chosen%% *} has been unmounted." || \
+        notify-send -u low -i $err_icon "Couldn't unmount ${chosen%% *}."
     fi
 }
 
@@ -88,6 +91,6 @@ while getopts "hmu" arg 2>/dev/null; do
         h) help ;;
         m) mount ;;
         u) unmount ;;
-        *) printf "invalid option\nType dm-usbmount -h for help" ;;
+        *) printf "invalid option\nType dm-usbmount -h for help\n" ;;
     esac
 done
