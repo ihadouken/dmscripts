@@ -54,7 +54,7 @@ main() {
     *)
       pkill -f http || echo "mpv not running."
       start_radio "$choice" ;
-      mpv "${radio_stations["${choice}"]}"
+      $player "${radio_stations["${choice}"]}"
       return
       ;;
   esac
