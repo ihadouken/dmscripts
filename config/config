@@ -266,6 +266,9 @@ case "${0#*-}" in
         # currencies[Monero]="XMR"
         # see: https://rate.sx/:currencies and https://rate.sx/:coins
         ;;
+
+    "emoji")
+        emoji_file="$XDG_DATA_HOME/dm-emoji/emoji_list"
   *);;
 esac
 
