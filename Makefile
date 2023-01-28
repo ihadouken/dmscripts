@@ -2,7 +2,7 @@
 SHELL = /bin/sh
 NAME = dmscripts
 
-PREFIX ?= /usr
+PREFIX ?= /usr/local
 SCRIPTS := $(wildcard ./scripts/*)
 SHARE != [ -d ${PREFIX}/share/man ] && echo /share || true
 MANPREFIX ?= ${PREFIX}${SHARE}/man
