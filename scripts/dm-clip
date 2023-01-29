@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
+
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+# shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
+else
+# shellcheck disable=SC1090
+    echo 'No helper-script found'
+fi
+
+# Script will not hit this if there is no config-file to load
+# shellcheck disable=SC1090
+source "$(get_config)"
+
+main() {
+    [[ ! -f "$clip_file" ]] && touch "$clip_file" && chmod 600 "$clip_file"
+
+    local _options=(
+        'Save Clipboard'
+        'Load Clipboard'
+        'Clear Storage'
+    )
+
+    choice="$(printf '%s\n' "${_options[@]}" | ${DMENU} 'Operation: ')" || exit 1
+
+    case $choice in
+        'Save Clipboard')
+            echo "$(xclip -o)" >> "$clip_file" ;;
+
+        'Load Clipboard')
+            tac "$clip_file" | uniq | ${DMENU} 'Select saved entry: ' | tr -d '\n' | xclip -sel c ;;
+
+        'Clear Storage')
+            cat /dev/null > "$clip_file" ;;
+
+        *)
+            ;;
+    esac
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

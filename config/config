@@ -47,6 +47,9 @@ case "${0#*-}" in
         player="mpv --no-video --input-ipc-server="${MPV_SOCKET}""
         playing_icon='/usr/share/icons/Papirus/32x32/apps/org.gnome.Music.svg' ;;
 
+    "clip")
+        clip_file="${TMPDIR:-"/tmp"}/clip" ;;
+
     "setbg")
         setbg_dir="$XDG_DATA_HOME/backgrounds"
         # xwal_setter='nitrogen --save --set-auto'
