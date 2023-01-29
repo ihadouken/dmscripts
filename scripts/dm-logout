@@ -45,6 +45,7 @@ main() {
     "Reboot"
     "Shutdown"
     "Suspend"
+    "Suspend then hibernate"
     "Quit"
     )
 
@@ -93,6 +94,13 @@ main() {
         'Suspend')
             if [[ "$(echo -e "No\nYes" | ${DMENU} "${choice}?" "${@}" )" == "Yes" ]]; then
                 systemctl suspend
+            else
+                output "User chose not to suspend." && exit 0
+            fi
+            ;;
+        'Suspend then hibernate')
+            if [[ "$(echo -e "No\nYes" | ${DMENU} "${choice}?" "${@}" )" == "Yes" ]]; then
+                systemctl suspend-then-hibernate
             else
                 output "User chose not to suspend." && exit 0
             fi
