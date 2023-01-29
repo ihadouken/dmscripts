@@ -40,7 +40,9 @@ case "${0#*-}" in
         sounds_dir="$XDG_DATA_HOME/sounds/dmsounds" ;;
 
     "music")
-        mus_dir="$HOME/Music" ;;
+        mus_dir="$HOME/Music"
+        player="mpv --no-video --input-ipc-server="${MPV_SOCKET}""
+        playing_icon='/usr/share/icons/Papirus/32x32/apps/org.gnome.Music.svg' ;;
 
     "setbg")
         setbg_dir="$XDG_DATA_HOME/backgrounds"
