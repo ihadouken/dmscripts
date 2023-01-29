@@ -32,7 +32,7 @@ main() {
   translate_services[libretranslate]="https://libretranslate.de"
   translate_services[lingva]="https://lingva.ml"
 
-  declare -A translate_languages_url    
+  declare -A translate_languages_url
   translate_languages_url[libretranslate]="https://libretranslate.de/languages"
   translate_languages_url[lingva]="https://lingva.ml/api/v1/languages/source"
 
