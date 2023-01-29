@@ -16,6 +16,7 @@ DMTERM="$MYTERM -e"
 DMEDITOR="$DMTERM nvim"
 
 PDF_VIEWER="zathura"
+DMPLAYER='mpv'
 
 # Socket used for controlling mpv
 MPV_SOCKET="$XDG_CACHE_HOME/mpv-ipc-socket"
@@ -157,7 +158,7 @@ case "${0#*-}" in
 
     "youtube")
         cache_dir="${XDG_CACHE_HOME:-"$HOME/.cache"}"/dm-youtube
-        player='setsid -f mpv --profile=hadouken' ;;
+        player="${DMPLAYER}" ;;
 
     "yt-music")
         cache_dir="${XDG_CACHE_HOME:-"$HOME"/.cache}/dm-yt-music"
@@ -169,7 +170,7 @@ case "${0#*-}" in
     "yt-rss")
         # Use same cache as dm-youtube for recording watch history
         cache_dir="${XDG_CACHE_HOME:="$HOME/.cache"}/dm-youtube"
-        player='mpv --profile=hadouken'
+        player="${DMPLAYER}"
 
         declare -A youtube_channels
         youtube_channels[Distrotube]="https://www.youtube.com/c/DistroTube/videos"
