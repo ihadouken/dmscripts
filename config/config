@@ -49,6 +49,8 @@ case "${0#*-}" in
 
     "setbg")
         setbg_dir="$XDG_DATA_HOME/backgrounds"
+        # xwal_setter='nitrogen --save --set-auto'
+        xwal_setter='xwallpaper --stretch'
 
         # Set this to 1 if you want to use imv and wayland, 0 if you want to use sxiv
         # Note that sxiv is X11 only, you need to mark the image you want to use.

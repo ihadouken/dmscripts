@@ -31,7 +31,7 @@ source "$(get_config)"
 # Set wallpaper using either xwallpaper or swaybf
 setbg() {
   case "$XDG_SESSION_TYPE" in
-    'x11') xwallpaper --stretch "$1";;
+    'x11') $xwal_setter "$1";;
     'wayland') swaybg -m "stretch" -i "$1";;
     *) err "Unknown display server";;
   esac
@@ -42,7 +42,7 @@ main() {
   case "$choice" in
     "Set") 
     if [ "$use_imv" = 0 ]; then
-      wallpaper="$(sxiv -t -o "${setbg_dir}")"
+      wallpaper="$(sxiv -t -o -r "${setbg_dir}")"
       echo "$wallpaper" > "$HOME"/.cache/wall
       setbg "$wallpaper"
     else
@@ -62,7 +62,7 @@ main() {
     until [ "$valid_paper" = "Yes" ]; do
       pidof "swaybg" && killall "swaybg" 
       pidof "xwallpaper" && killall "xwallpaper" 
-      wallpaper="$(find "${setbg_dir}" -type f | shuf -n 1)"
+      wallpaper="$(find "${setbg_dir}" -type f -not -path "${setbg_dir}/.git/*" | shuf -n 1)"
       setbg "$wallpaper" &
       echo "$wallpaper" > "$HOME/.cache/wall"
       valid_paper="$(printf "Yes\nNo" | ${DMENU} "Do you like the new wallpaper?")"
