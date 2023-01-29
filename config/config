@@ -19,6 +19,8 @@ PDF_VIEWER="zathura"
 
 # Socket used for controlling mpv
 MPV_SOCKET="$XDG_CACHE_HOME/mpv-ipc-socket"
+# API key for youtbe related dmscripts
+YT_API_KEY="$(cat "${XDG_CONFIG_HOME}"/api_keys/youtube)"
 
 
 # TODO: Rename this variable to something more traditional
@@ -152,6 +154,17 @@ case "${0#*-}" in
         websearch[googleOpenSource]="https://opensource.google/projects/search?q="
         websearch[sourceforge]="https://sourceforge.net/directory/?q="
         websearch[stackoverflow]="https://stackoverflow.com/search?q=" ;;
+
+    "youtube")
+        cache_dir="${XDG_CACHE_HOME:-"$HOME/.cache"}"/dm-youtube
+        player='setsid -f mpv --profile=hadouken' ;;
+
+    "yt-music")
+        cache_dir="${XDG_CACHE_HOME:-"$HOME"/.cache}/dm-yt-music"
+        down_dir="$HOME/Music/youtube"
+        player="mpv --no-video --input-ipc-server="$MPV_SOCKET""
+        playing_icon='/usr/share/icons/Papirus/32x32/apps/org.gnome.Music.svg'
+        download_icon='/usr/share/icons/Papirus/16x16/apps/youtube-dl.svg' ;;
 
     "yt-rss")
         # Use same cache as dm-youtube for recording watch history

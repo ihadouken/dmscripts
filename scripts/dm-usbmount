@@ -62,14 +62,14 @@ all"
         mountAll 
     else 
         udisksctl mount -b "${chosen%% *}" && \
-        notify-send -u low -i $sucess_icon "${chosen%% *} has been mounted." || \
-        notify-send -u low -i $err_icon "Couldn't mount ${chosen%% *}."
+        notify-send -i "$success_icon" "${chosen%% *} has been mounted." || \
+        notify-send -i "$err_icon" "Couldn't mount ${chosen%% *}."
     fi
 }
 
 unmount(){
     # mounted="$(lsblk -lp | awk '/run/ { print $1 }')"
-    mounted="$(lsblk -lp | grep 'run' )" || (notify-send -u low -i $err_icon "No drives to unmount" && exit 0)
+    mounted="$(lsblk -lp | grep 'run' )" || (notify-send -i "$err_icon" "No drives to unmount" && exit 0)
     # driveCount "$mounted"
     driveCount "${mounted%%* }"
     # [ "$count" = "1" ] && options="$mounted" || options="$mounted\nall"
@@ -81,8 +81,8 @@ all"
         unmountAll
     else
         udisksctl unmount -b "$chosen" && \
-        notify-send -u low -i $sucess_icon "${chosen%% *} has been unmounted." || \
-        notify-send -u low -i $err_icon "Couldn't unmount ${chosen%% *}."
+        notify-send -i "$success_icon" "${chosen%% *} has been unmounted." || \
+        notify-send -i "$err_icon" "Couldn't unmount ${chosen%% *}."
     fi
 }
 
