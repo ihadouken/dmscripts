@@ -36,7 +36,7 @@ main() {
 
   # Curl wttr.in, a CLI weather app.
   # TODO: Replace YAD with some simplified notification
-  curl -s "https://wttr.in/\"${weather_location[${_location}]}\"?T&${weather_opts}" | yad --text-info
+  curl -s "https://wttr.in/\"${weather_location[${_location}]}\"?T&${weather_opts}" | yad --text-info --geometry="$yad_geometry"
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
