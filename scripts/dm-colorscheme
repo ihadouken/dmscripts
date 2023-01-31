@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# Script name: dtos-colorscheme
+# Description: Change colorscheme in DTOS.
+# Dependencies: dmenu, dmscripts
+# GitLab: https://www.gitlab.com/dwt1/dtos
+# License: https://www.gitlab.com/dwt1/dtos/LICENSE
+# Contributors: Derek Taylor
+
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+set -euo pipefail
+
+_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
+if [[  -f "${_path}/_dm-helper.sh" ]]; then
+  # shellcheck disable=SC1090,SC1091
+  source "${_path}/_dm-helper.sh"
+else
+  # shellcheck disable=SC1090
+  echo "No helper-script found"
+fi
+
+# script will not hit this if there is no config-file to load
+# shellcheck disable=SC1090
+source "$(get_config)"
+
+main() {
+    local options=(
+        "DoomOne"
+        "Dracula"
+        "GruvboxDark"
+        "MonokaiPro"
+        "Nord"
+        "OceanicNext"
+        "Palenight"
+        "SolarizedDark"
+        "SolarizedLight"
+        "TomorrowNight"
+    )
+
+    choice="$(printf '%s\n' "${options[@]}" | ${DMENU} 'Choose color scheme:' "${@}")" || exit 1
+
+    sed  -i "s/import Colors.*/import Colors.$choice/g" "$XDG_CONFIG_HOME"/xmonad/README.org || echo "Cannot modify README.org"
+    sed  -i "s/import Colors.*/import Colors.$choice/g" "$XDG_CONFIG_HOME"/xmonad/xmonad.hs || echo "Cannot modify xmonad.hs"
+    xmonad --restart
+
+    sed -i "s/^colors: .*/colors: \*$choice/g" "$XDG_CONFIG_HOME"/alacritty/alacritty.yml
+
+    # TODO: Add custom dmenu build and rice it here.
+    # TODO: Add DOOM EMACS
+    # TODO: Add rofi
+    [[ ! -f "/usr/local/bin/rice_helper.sh" ]] && echo "Rice helper not found" || sudo rice_helper.sh "$choice"
+
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
