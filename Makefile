@@ -8,7 +8,7 @@ SHARE != [ -d ${PREFIX}/share/man ] && echo /share || true
 MANPREFIX ?= ${PREFIX}${SHARE}/man
 
 
-build: 
+build:
 	@$(MAKE) man/dmscripts.1.gz
 	@echo "Done"
 

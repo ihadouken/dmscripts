@@ -69,6 +69,11 @@ case "${0#*-}" in
     "wordsearch")
         word_file="$XDG_DATA_HOME/dict/words" ;;
 
+    "upload")
+        hist_file="${XDG_DATA_HOME:-$HOME/.local/share}/upload.sh/uploadhst"
+        success_icon='/usr/share/icons/Papirus/64x64/apps/mintupload.svg'
+        err_icon='/usr/share/icons/Papirus/48x48/emotes/face-sad.svg' ;;
+
     "confedit")
         declare -A confedit_list
         confedit_list[dmscripts]="$XDG_CONFIG_HOME/dmscripts/config"

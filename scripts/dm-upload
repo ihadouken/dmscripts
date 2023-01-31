@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# The famous "get a menu of emojis to copy" script.
+
+set -euo pipefail
+_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
+
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+# shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
+else
+# shellcheck disable=SC1090
+    echo 'No helper-script found'
+fi
+
+# Script will not hit this if there is no config-file to load
+# shellcheck disable=SC1090
+source "$(get_config)"
+
+# Helpers
+die() {
+    [[ $# -eq 0 ]] && msg='Some error occured.' || msg="$1"
+    printf "\033[1;31m[ERROR]: %s\033[0m\n" "$msg"
+    notify-send 'ERROR (dm-upload)' -i "$err_icon" "$msg"
+    exit 1
+}
+
+list_dir() {
+    [[ $# -eq 0 ]] && die 'No directory to list.'
+
+    # Use array to hold filenames.
+    declare -a files
+    readarray -t files < <(printf '%s\n' "$1"/* | grep -v '^\.$\|^\.\.$')
+
+    # Add markers for directories.
+    for i in "${!files[@]}"; do
+        # File must be basenamed after performing directory check.
+        [[ -d "${files[i]}" ]] && files[i]="[d] $(basename "${files[i]}")" || \
+            files[i]="$(basename "${files[i]}")"
+    done
+
+    selected="$(printf '%s\n' "${files[@]}" | ${DMENU} 'Select file (or list directory): ' | sed 's/\[d\] //')" || die 'No file selected.'
+    echo "$selected"
+}
+
+up() {
+    # Exactly two arguments requires: directory and filename.
+    [[ ! $# -eq 2 ]] && die 'Directory or filename missing for upload.'
+    # If filename variable contains full path to file.
+    [[ "$1" == '' ]] && fpath="$2" || fpath="$1"/"$2"
+    # Specified file isn't valid.
+    [[ -f "$fpath" ]] || die 'Invalid file.'
+
+    link="$(curl -s -F"file=@$fpath" https://0x0.st | xclip -f -sel c)"
+    if echo "$link" | grep -qE "^https://0x0\.st/"; then
+        printf "[%s]:  %s --> %s\n" "$(date +'%d-%M-%Y-(%H:%M%p)')" "${fpath// /-}" "$link" >> "$hist_file"
+        printf "%s --> %s\n" "$fpath" "$link"
+        notify-send -i "$success_icon" "Uploaded $2" "$link"
+        exit 0
+    else
+        die 'Error uploading file.'
+    fi
+}
+
+parse_dir() {
+    # Require directory argument to work.
+    [[ $# -eq 0 ]] && die 'No directory to parse.'
+
+    [[ -d "$1" ]] && dir="$1" || die 'Invalid directory for parsing.'
+    file=''
+
+    while [[ -d "$dir"/"$file" ]]; do
+        [[ -n "$file" ]] && dir="$dir"/"$file"
+        file="$(list_dir "$dir")"
+    done
+}
+
+main() {
+    # Ask for file to upload from current directory
+    if [[ $# -lt 1 ]]; then
+        parse_dir "$PWD"
+        up "$dir" "$file"
+    else
+        if [[ -f "$1" ]]; then
+            up '' "$1"
+        elif [[ -d "$1" ]]; then
+            parse_dir "$1"
+            up "$dir" "$file"
+        else
+            die 'File not found !'
+        fi
+    fi
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
