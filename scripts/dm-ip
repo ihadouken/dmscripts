@@ -2,7 +2,7 @@
 
 # Script name: dm-ip
 # Description: Get IP from interface (or external)
-# Dependencies: dmenu, dig, ip, jq
+# Dependencies: dmenu, ip, jq
 # GitLab: https://www.gitlab.com/dwt1/dmscripts
 # License: https://www.gitlab.com/dwt1/dmscripts/LICENSE
 # Contributors: Simon Ingelsson
@@ -24,7 +24,7 @@ source "$(get_config)"
 main() {
   declare -A _ips
 
-  _external=$(dig +short myip.opendns.com @resolver1.opendns.com)
+  _external=$(curl -s https://ifconfig.io)
   _ips[external]="${_external}"
 
   for _iface in $(ip -4 -j addr | jq -r '.[] |{ name: .ifname, ip: .addr_info[].local} | join(":")') ; do
@@ -33,7 +33,7 @@ main() {
 
   selected="$(printf '%s\n' "${!_ips[@]}" | ${DMENU} "ips:" "$@")"
   [ -z "${selected}" ] && exit 1
-  echo "${_ips["${selected}"]}" | cp2cb 
+  echo "${_ips["${selected}"]}" | cp2cb
   notify-send "IP (in clipboard)" " ${selected}: ${_ips["${selected}"]}"
 }
 
