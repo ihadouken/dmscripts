@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Script name: dm-record
 # Description: Dmenu script to record video,audio,webcam.
 # Dependencies: dmenu, ffmpeg, pulseaudio, alsa, slop (for recording a specific area)
@@ -16,6 +15,21 @@
 # `$0 kill`: Kill existing recording
 #
 # If there is already a running instance, user will be prompted to end it.
+
+set -eo pipefail
+_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
+
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+# shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
+else
+# shellcheck disable=SC1090
+    echo 'No helper-script found'
+fi
+
+# Script will not hit this if there is no config-file to load
+# shellcheck disable=SC1090
+source "$(get_config)"
 
 killrecording() {
 	recpid="$(cat /tmp/recordingpid)"
@@ -39,7 +53,7 @@ screencast() { \
 	-f pulse -i default \
 	-r 30 \
  	-c:v h264 -crf 0 -preset ultrafast -c:a aac \
-	"$HOME/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
+	"$record_dir/screencast-$(date '+%y%m%d-%H%M-%S').mp4" &
 	echo $! > /tmp/recordingpid
        	}
 
@@ -48,7 +62,7 @@ video() { ffmpeg \
 	-s "$(xdpyinfo | awk '/dimensions/ {print $2;}')" \
 	-i "$DISPLAY" \
  	-c:v libx264 -qp 0 -r 30 \
-	"$HOME/video-$(date '+%y%m%d-%H%M-%S').mkv" &
+	"$record_dir/video-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
 	}
 
@@ -56,7 +70,7 @@ webcamhidef() { ffmpeg \
 	-f v4l2 \
 	-i /dev/video0 \
 	-video_size 1920x1080 \
-	"$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
+	"$record_dir/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
 	}
 
@@ -64,7 +78,7 @@ webcam() { ffmpeg \
 	-f v4l2 \
 	-i /dev/video0 \
 	-video_size 640x480 \
-	"$HOME/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
+	"$record_dir/webcam-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
 	}
 
@@ -73,7 +87,7 @@ audio() { \
 	ffmpeg \
 	-f alsa -i default \
 	-c:a flac \
-	"$HOME/audio-$(date '+%y%m%d-%H%M-%S').flac" &
+	"$record_dir/audio-$(date '+%y%m%d-%H%M-%S').flac" &
 	echo $! > /tmp/recordingpid
 	}
 
@@ -81,7 +95,7 @@ audio() { \
 # TODO: deprecate or rewrite
 
 askrecording() { \
-	choice=$(printf "screencast\\nvideo\\nvideo selected\\naudio\\nwebcam\\nwebcam (hi-def)" | ${DMENU} "Select recording style:")
+	choice=$(printf "screencast\\nvideo\\nvideo selected\\naudio\\nwebcam\\nwebcam (hi-def)" | ${DMENU} 'Select recording style:')
 	case "$choice" in
 		screencast) screencast;;
 		audio) audio;;
@@ -92,16 +106,14 @@ askrecording() { \
 	esac
 	}
 
-asktoend() { \
+asktoend() {
 	response=$(printf "No\\nYes" | ${DMENU} "Recording still active. End recording?") &&
-	[ "$response" = "Yes" ] &&  killrecording
-	}
+	[ "$response" = "Yes" ] &&  killrecording && exit 1
+}
 
 videoselected()
 {
-	slop -f "%x %y %w %h" > /tmp/slop
-	read -r X Y W H < /tmp/slop
-	rm /tmp/slop
+    read -r X Y W H < <(slop -f "%x %y %w %h")
 
 	ffmpeg \
 	-f x11grab \
@@ -109,16 +121,20 @@ videoselected()
 	-video_size "$W"x"$H" \
 	-i :0.0+"$X,$Y" \
 	-c:v libx264 -qp 0 -r 30 \
-	"$HOME/box-$(date '+%y%m%d-%H%M-%S').mkv" &
+	"$record_dir/box-$(date '+%y%m%d-%H%M-%S').mkv" &
 	echo $! > /tmp/recordingpid
 }
 
-case "$1" in
-	screencast) screencast;;
-	audio) audio;;
-	video) video;;
-	*selected) videoselected;;
-	kill) killrecording;;
-	*) ([ -f /tmp/recordingpid ] && asktoend && exit) || askrecording;;
-esac
+main() {
+    set +u
+    case "$1" in
+        screencast) screencast;;
+        audio) audio;;
+        video) video;;
+        *selected) videoselected;;
+        kill) killrecording;;
+        *) [ -f /tmp/recordingpid ] && asktoend || askrecording;;
+    esac
+}
 
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
