@@ -50,7 +50,7 @@ up() {
     # Specified file isn't valid.
     [[ -f "$fpath" ]] || die 'Invalid file.'
 
-    link="$(curl -s -F"file=@$fpath" https://0x0.st | xclip -f -sel c)"
+    link="$(curl -s -F"file=@$fpath" https://0x0.st | xclip -f -sel c)" || die 'Error uploading file.'
     if echo "$link" | grep -qE "^https://0x0\.st/"; then
         printf "[%s]:  %s --> %s\n" "$(date +'%d-%M-%Y-(%H:%M%p)')" "${fpath// /-}" "$link" >> "$hist_file"
         printf "%s --> %s\n" "$fpath" "$link"

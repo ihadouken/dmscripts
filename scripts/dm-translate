@@ -110,6 +110,7 @@ main() {
     translation=$(curl -Ss "${translation_url}" | jq -r "${translation_jq}")
   fi
 
+  echo "${translation}"
   # Copy translation to clipboard and send notification
   echo "${translation}" | cp2cb 
   notify-send "Translation (in clipboard)" "$translation"

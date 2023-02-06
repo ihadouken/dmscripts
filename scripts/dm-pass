@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+shopt -s nullglob globstar
+
+_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
+
+if [[ -f "${_path}/_dm-helper.sh" ]]; then
+# shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
+else
+# shellcheck disable=SC1090
+    echo 'No helper-script found'
+fi
+
+# Script will not hit this if there is no config-file to load
+# shellcheck disable=SC1090
+source "$(get_config)"
+
+main() {
+    typeit=0
+    set +u
+    if [[ $1 == "--type" ]]; then
+        typeit=1
+        shift
+    fi
+
+    if [[ -n $WAYLAND_DISPLAY ]]; then
+        dmenu=dmenu-wl
+        xdotool="ydotool type --file -"
+    elif [[ -n $DISPLAY ]]; then
+        xdotool="xdotool type --clearmodifiers --file -"
+    else
+        echo "Error: No Wayland or X11 display detected" >&2
+        exit 1
+    fi
+
+    prefix=${PASSWORD_STORE_DIR-~/.password-store}
+    password_files=( "$prefix"/**/*.gpg )
+    password_files=( "${password_files[@]#"$prefix"/}" )
+    password_files=( "${password_files[@]%.gpg}" )
+
+    password=$(printf '%s\n' "${password_files[@]}" | ${DMENU} "$@")
+
+    [[ -n $password ]] || exit
+
+    if [[ $typeit -eq 0 ]]; then
+        pass show -c "$password" 2>/dev/null
+    else
+        pass show "$password" | { IFS= read -r pass; printf %s "$pass"; } | $xdotool
+    fi
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
