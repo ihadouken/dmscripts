@@ -84,7 +84,7 @@ main() {
     'Find M/V'
     'Recent Plays'
     'Search History'
-    'rand_songom Song'
+    'Random Song'
     'Download Music'
     'Play/Pause Player'
     'Kill Player'
@@ -120,7 +120,7 @@ main() {
         $player "$link" && exit 0
 
 
-    elif [ "$choice" == 'rand_songom Song' ]; then
+    elif [ "$choice" == 'Random Song' ]; then
         rand_song="$(printf '%s\n' "${play_hst_list[@]}" | shuf -n 1)"
         link=https://"$(echo "$rand_song" | awk '{print $NF}')"
         kill_player
