@@ -50,11 +50,17 @@ up() {
     # Specified file isn't valid.
     [[ -f "$fpath" ]] || die 'Invalid file.'
 
-    link="$(curl -s -F"file=@$fpath" https://0x0.st | xclip -f -sel c)" || die 'Error uploading file.'
-    if echo "$link" | grep -qE "^https://0x0\.st/"; then
-        printf "[%s]:  %s --> %s\n" "$(date +'%d-%M-%Y-(%H:%M%p)')" "${fpath// /-}" "$link" >> "$hist_file"
+    if file "$fpath" | grep -q 'image'; then
+        link="$(imgur.sh "$fpath" 2> /dev/null)" || die 'Error uploading file.'
+    else
+        link="$(curl -s -F"file=@$fpath" https://0x0.st)" || die 'Error uploading file.'
+    fi
+
+    if echo "$link" | grep -q "0x0\.st\|i\.imgur\.com"; then
+        printf "[%s]:  '%s' --> %s\n" "$(date +'%d-%M-%Y-(%H:%M%p)')" "${fpath}" "$link" >> "$hist_file"
         printf "%s --> %s\n" "$fpath" "$link"
         notify-send -i "$success_icon" "Uploaded $2" "$link"
+        printf "$link" | xclip -sel c
         exit 0
     else
         die 'Error uploading file.'
