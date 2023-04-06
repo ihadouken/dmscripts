@@ -38,7 +38,7 @@ main() {
     password_files=( "${password_files[@]#"$prefix"/}" )
     password_files=( "${password_files[@]%.gpg}" )
 
-    password=$(printf '%s\n' "${password_files[@]}" | ${DMENU} "$@")
+    password=$(printf '%s\n' "${password_files[@]}" | ${DMENU} 'Choose password to retrieve: ' "$@")
 
     [[ -n $password ]] || exit
 
