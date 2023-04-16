@@ -31,7 +31,7 @@ source "$(get_config)"
 # Set wallpaper using either xwallpaper or swaybf
 setbg() {
   case "$XDG_SESSION_TYPE" in
-    'x11') $xwal_setter "$1";;
+    'x11') $xwal_setter "$1" ;;
     'wayland') swaybg -m "stretch" -i "$1";;
     *) err "Unknown display server";;
   esac
@@ -43,8 +43,9 @@ main() {
     "Set") 
     if [ "$use_imv" = 0 ]; then
       wallpaper="$(sxiv -t -o -r "${setbg_dir}")"
+      [[ "$MYTERM" == 'st' ]] && st-setbg "$wallpaper" &
+      setbg "$wallpaper" &
       echo "$wallpaper" > "$HOME"/.cache/wall
-      setbg "$wallpaper"
     else
       # Read each line printed to stdin, imv behaves weird
       # We also ignore a shellcheck issue because it's a bug
@@ -58,15 +59,16 @@ main() {
     fi
     ;;
     "Random")
-    valid_paper="No"
-    until [ "$valid_paper" = "Yes" ]; do
+    selected="No"
+    until [ "$selected" = "Yes" ]; do
       pidof "swaybg" && killall "swaybg" 
       pidof "xwallpaper" && killall "xwallpaper" 
       wallpaper="$(find "${setbg_dir}" -type f -not -path "${setbg_dir}/.git/*" | shuf -n 1)"
       setbg "$wallpaper" &
       echo "$wallpaper" > "$HOME/.cache/wall"
-      valid_paper="$(printf "Yes\nNo" | ${DMENU} "Do you like the new wallpaper?")"
+      selected="$(printf "Yes\nNo" | ${DMENU} "Do you like the new wallpaper?")"
     done
+    [[ "$MYTERM" == 'st' ]] && st-setbg "$wallpaper" &
     ;;
     "Exit") echo "Program terminated" && exit 1;;
     *) err "Invalid choice";;
