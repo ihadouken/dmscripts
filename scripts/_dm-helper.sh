@@ -21,7 +21,7 @@ fi
 ###########################
 
 get_local_config() {
-  # Do some subshell magic finding out where the script we are running 
+  # Do some subshell magic finding out where the script we are running
   # is located and checking if ../config is a dir relative to the script
   echo "$(
     cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")./"
@@ -85,7 +85,7 @@ warn () {
 }
 
 # Simple error function
-err () { 
+err () {
   printf 'Error: %s\n' "$1"
   exit 1
 }
@@ -109,15 +109,15 @@ err () {
 cp2cb() {
   case "$XDG_SESSION_TYPE" in
     'x11') xclip -r -selection clipboard;;
-    'wayland') wl-copy -n;; 
-    *) err "Unknown display server";; 
+    'wayland') wl-copy -n;;
+    *) err "Unknown display server";;
   esac
 }
 
 grep-desktop() {
   case "$XDG_SESSION_TYPE" in
     'x11') grep "Name=" /usr/share/xsessions/*.desktop | cut -d'=' -f2;;
-    'wayland') grep "Name=" /usr/share/wayland-sessions/*.desktop | cut -d'=' -f2 || grep "Name=" /usr/share/xsessions/*.desktop | grep -i "wayland" | cut -d'=' -f2 | cut -d' ' -f1;; 
+    'wayland') grep "Name=" /usr/share/wayland-sessions/*.desktop | cut -d'=' -f2 || grep "Name=" /usr/share/xsessions/*.desktop | grep -i "wayland" | cut -d'=' -f2 | cut -d' ' -f1;;
     *) err "Unknown display server";;
   esac
 }

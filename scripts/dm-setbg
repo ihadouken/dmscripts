@@ -17,58 +17,71 @@ set -euo pipefail
 
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
 if [[  -f "${_path}/_dm-helper.sh" ]]; then
-  # shellcheck disable=SC1090,SC1091
-  source "${_path}/_dm-helper.sh"
+    # shellcheck disable=SC1090,SC1091
+    source "${_path}/_dm-helper.sh"
 else
-  # shellcheck disable=SC1090
-  echo "No helper-script found"
+    # shellcheck disable=SC1090
+    echo "No helper-script found"
 fi
 
 # script will not hit this if there is no config-file to load
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+# Regenerate pywal cache according to new wallpaper
+update_pywal() {
+    wal -i "$1"
+    [[ "$DMTERM" == 'st -e' ]] && killall -s USR1 st
+}
+
 # Set wallpaper using either xwallpaper or swaybf
 setbg() {
-  case "$XDG_SESSION_TYPE" in
-    'x11') $xwal_setter "$1" ;;
-    'wayland') swaybg -m "stretch" -i "$1";;
-    *) err "Unknown display server";;
-  esac
+    case "$XDG_SESSION_TYPE" in
+        'x11') $xwal_setter "$1" ;;
+        'wayland') swaybg -m "stretch" -i "$1";;
+        *) err "Unknown display server";;
+    esac
 }
 
 main() {
-  choice="$(printf "Set\nRandom\nExit" | ${DMENU} "What would you like to do?")" 
+  choice="$(printf "Set\nRandom\nExit" | ${DMENU} "What would you like to do?")"
   case "$choice" in
-    "Set") 
+    "Set")
     if [ "$use_imv" = 0 ]; then
-      wallpaper="$(sxiv -t -o -r "${setbg_dir}")"
-      [[ "$MYTERM" == 'st' ]] && st-setbg "$wallpaper" &
-      setbg "$wallpaper" &
-      echo "$wallpaper" > "$HOME"/.cache/wall
+        wallpaper="$(sxiv -t -o -r "${setbg_dir}")"
+
+        update_pywal "$wallpaper"
+        # Update st's background.
+        [[ "$DMTERM" == 'st -e' ]] && st-setbg "$wallpaper" &
+
+        setbg "$wallpaper" &
+        echo "$wallpaper" > "$HOME"/.cache/wall
     else
-      # Read each line printed to stdin, imv behaves weird
-      # We also ignore a shellcheck issue because it's a bug
-      # shellcheck disable=SC2154
-      imv "${setbg_dir}" | while read -r LINE; do
-        pidof "swaybg" && killall "swaybg" 
-        pidof "xwallpaper" && killall "xwallpaper" 
-        setbg "$LINE" & # Sets the wallpaper and frees it from the process
-        notify-send "Wallpaper has been updated" "$LINE is the current wallpaper, edit your window manager config if you would like this to persist on reboot"
-      done
+        # Read each line printed to stdin, imv behaves weird
+        # We also ignore a shellcheck issue because it's a bug
+        # shellcheck disable=SC2154
+        imv "${setbg_dir}" | while read -r LINE; do
+            pidof "swaybg" && killall "swaybg"
+            pidof "xwallpaper" && killall "xwallpaper"
+            setbg "$LINE" & # Sets the wallpaper and frees it from the process
+            notify-send "Wallpaper has been updated" "$LINE is the current wallpaper, edit your window manager config if you would like this to persist on reboot"
+        done
     fi
     ;;
     "Random")
     selected="No"
     until [ "$selected" = "Yes" ]; do
-      pidof "swaybg" && killall "swaybg" 
-      pidof "xwallpaper" && killall "xwallpaper" 
-      wallpaper="$(find "${setbg_dir}" -type f -not -path "${setbg_dir}/.git/*" | shuf -n 1)"
-      setbg "$wallpaper" &
-      echo "$wallpaper" > "$HOME/.cache/wall"
-      selected="$(printf "Yes\nNo" | ${DMENU} "Do you like the new wallpaper?")"
+        pidof "swaybg" && killall "swaybg"
+        pidof "xwallpaper" && killall "xwallpaper"
+        wallpaper="$(find "${setbg_dir}" -type f -not -path "${setbg_dir}/.git/*" | shuf -n 1)"
+        setbg "$wallpaper" &
+        echo "$wallpaper" > "$HOME/.cache/wall"
+        selected="$(printf "Yes\nNo" | ${DMENU} "Do you like the new wallpaper?")"
     done
-    [[ "$MYTERM" == 'st' ]] && st-setbg "$wallpaper" &
+
+    update_pywal "$wallpaper"
+    # Update st's background.
+    [[ "$DMTERM" == 'st -e' ]] && st-setbg "$wallpaper" &
     ;;
     "Exit") echo "Program terminated" && exit 1;;
     *) err "Invalid choice";;
