@@ -29,7 +29,7 @@ list_dir() {
 
     # Use array to hold filenames.
     declare -a files
-    readarray -t files < <(printf '%s\n' "$1"/* | grep -v '^\.$\|^\.\.$')
+    readarray -t files < <(ls -a "$1" | grep -v '^\.$\|^\.\.$')
 
     # Add markers for directories.
     for i in "${!files[@]}"; do
