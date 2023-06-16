@@ -22,7 +22,7 @@ source "$(get_config)"
 main() {
   # TODO: Fix cut line at some point
   bssid=$(nmcli device wifi list | sed -n '1!p' | cut -b 9- | ${DMENU} "Select Wifi  :" | cut -d' ' -f1)
-  pass=$(echo "" | ${DMENU} "Enter Password  :")
+  pass=$(echo "" | ${DMENU} "Enter Password  :" -P)
   # We are disabling a shellcheck warning about using && and || as it doesn't apply here.
   # shellcheck disable=SC2015
   [ -n "$pass" ] && nmcli device wifi connect "$bssid" password "$pass" || nmcli device wifi connect "$bssid"
