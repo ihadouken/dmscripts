@@ -23,6 +23,8 @@ fi
 # shellcheck disable=SC1090
 source "$(get_config)"
 
+[[ -d "$cache_dir" ]] || mkdir -p "$cache_dir"
+
 main() {
   local _feed_url _channel _video
   local _channel_id _video_id _video_list
