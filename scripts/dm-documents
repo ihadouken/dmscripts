@@ -27,7 +27,7 @@ source "$(get_config)"
 
 main(){
   # PDF_VIEWER=zathura
-  files="$(find "$HOME" -maxdepth 4 -iname "*.pdf")"
+  files="$(locate "$HOME/**/*.pdf")"
   choice=$( printf '%s\n' "${files[@]}" | \
         cut -d '/' -f4- | \
         sed -e 's/Documents/Dcs/g' \
