@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-#!/usr/bin/env bash
-# The famous "get a menu of emojis to copy" script.
-
 set -euo pipefail
 _path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)"
 

@@ -43,13 +43,14 @@ main() {
 
     sed  -i "s/import Colors.*/import Colors.$choice/g" "$XDG_CONFIG_HOME"/xmonad/README.org || echo "Cannot modify README.org"
     sed  -i "s/import Colors.*/import Colors.$choice/g" "$XDG_CONFIG_HOME"/xmonad/xmonad.hs || echo "Cannot modify xmonad.hs"
-    xmonad --restart
+    pgrep xmonad && xmonad --restart
+
+    sed -i "s/\(colors = colors\).*/\1.$choice/" "$XDG_CONFIG_HOME"/qtile/config.py
+    pgrep -f 'qtile start' && qtile cmd-obj -o cmd -f reload_config
 
     sed -i "s/^colors: .*/colors: \*$choice/g" "$XDG_CONFIG_HOME"/alacritty/alacritty.yml
 
-    # TODO: Add custom dmenu build and rice it here.
     # TODO: Add DOOM EMACS
-    # TODO: Add rofi
     [[ ! -f "/usr/local/bin/rice_helper.sh" ]] && echo "Rice helper not found" || sudo rice_helper.sh "$choice"
 
 }
