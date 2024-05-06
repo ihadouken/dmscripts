@@ -2,9 +2,7 @@
 # shellcheck disable=SC2034
 # -p is needed as we use prompts, alternative programs have to handle prompts well.
 
-# DMENU="dmenu -i -l 15 -fn Mononoki-nerd-font -p"
-DMENU="rofi -dmenu -i -p"
-# DMENU="fzf --prompt"
+DMENU="${MENU:-dmenu -i -l 15 -fn Mononoki-nerd-font -p}"
 
 # DMBROWSER="brave"
 DMBROWSER="qutebrowser"
@@ -16,13 +14,10 @@ DMTERM="$MYTERM -e"
 DMEDITOR="$DMTERM nvim"
 
 PDF_VIEWER="zathura"
-DMPLAYER='mpv'
+DMPLAYER='mpv --no-resume-playback'
 
 # Socket used for controlling mpv
 MPV_SOCKET="$XDG_CACHE_HOME/mpv-ipc-socket"
-# API key for youtbe related dmscripts
-YT_API_KEY="$(cat "${XDG_CONFIG_HOME}"/api_keys/youtube)"
-
 
 # TODO: Rename this variable to something more traditional
 logout_locker='slock'
@@ -44,7 +39,7 @@ case "${0#*-}" in
 
     "music")
         mus_dir="$HOME/Music"
-        player="mpv --no-video --input-ipc-server="${MPV_SOCKET}""
+        player="mpv --no-resume-playback --no-video --input-ipc-server="${MPV_SOCKET}""
         playing_icon='/usr/share/icons/Papirus/32x32/apps/org.gnome.Music.svg' ;;
 
     "clip")
@@ -73,7 +68,7 @@ case "${0#*-}" in
         word_file="$XDG_DATA_HOME/dict/words" ;;
 
     "upload")
-        hist_file="${XDG_DATA_HOME:-$HOME/.local/share}/upload.sh/uploadhst"
+        hist_file="${XDG_DATA_HOME:-$HOME/.local/share}/dmscripts/dm-upload/history"
         success_icon='/usr/share/icons/Papirus/64x64/apps/mintupload.svg'
         err_icon='/usr/share/icons/Papirus/48x48/emotes/face-sad.svg' ;;
 
@@ -81,20 +76,24 @@ case "${0#*-}" in
         declare -A confedit_list
         confedit_list[dmscripts]="$XDG_CONFIG_HOME/dmscripts/config"
         confedit_list[alacritty]="$XDG_CONFIG_HOME/alacritty/alacritty.yml"
+        confedit_list[shell]="$XDG_CONFIG_HOME/sh"
         confedit_list[scripts]="$HOME/.local/bin"
         confedit_list[bash]="$HOME/.bashrc"
         confedit_list[zsh]="$ZDOTDIR/.zshrc"
-        confedit_list[aliasrc]="$XDG_CONFIG_HOME/sh/aliasrc"
         confedit_list[bash_history]="$HOME/.bash_history"
         confedit_list[bash_profile]="$HOME/.bash_profile"
         confedit_list[tmux]="$XDG_CONFIG_HOME/tmux/tmux.conf"
         confedit_list[mpv]="$XDG_CONFIG_HOME/mpv/mpv.conf"
+        confedit_list[lobster]="$XDG_CONFIG_HOME/lobster/lobster_config.txt"
+        confedit_list[leetcode]="$HOME/.leetcode/leetcode.toml"
+        confedit_list[hypr]="$XDG_CONFIG_HOME/hypr"
+        confedit_list[foot]="$XDG_CONFIG_HOME/foot"
         confedit_list[redshift]="$XDG_CONFIG_HOME/redshift/redshift.conf"
         confedit_list[dunst]="$XDG_CONFIG_HOME/dunst/dunstrc"
         confedit_list[fish]="$XDG_CONFIG_HOME/fish/config.fish"
-        confedit_list[neovim-mods]="$XDG_CONFIG_HOME/nvim/lua/hk"
-        confedit_list[neovim-plugins]="$XDG_CONFIG_HOME/nvim/after/plugin"
-        confedit_list[neovim-init]="$XDG_CONFIG_HOME/nvim/init.lua"
+        confedit_list[nvim-modules]="$XDG_CONFIG_HOME/nvim/lua/hk"
+        confedit_list[nvim-plugins]="$XDG_CONFIG_HOME/nvim/after/plugin"
+        confedit_list[nvim-init]="$XDG_CONFIG_HOME/nvim/init.lua"
         confedit_list[newsboat]="$XDG_CONFIG_HOME/newsboat/config"
         confedit_list[picom]="$XDG_CONFIG_HOME/picom/picom.conf"
         confedit_list[qtile]="$XDG_CONFIG_HOME/qtile/config.py"
@@ -104,12 +103,13 @@ case "${0#*-}" in
         confedit_list[irssi]="$XDG_CONFIG_HOME/irssi/config"
         confedit_list[StartTree]="$XDG_CONFIG_HOME/StartTree/config.yaml"
         confedit_list[sxhkd]="$XDG_CONFIG_HOME/sxhkd/sxhkdrc"
+        confedit_list[waybar]="$XDG_CONFIG_HOME/waybar"
         confedit_list[xmonad]="$XDG_CONFIG_HOME/xmonad/xmonad.hs"
         confedit_list[xmobar]="$XDG_CONFIG_HOME/xmobar"
-        confedit_list[xinitrc]="$XDG_CONFIG_HOME/X11/xinitrc"
+        confedit_list[xinitrc]="${XINITRC:-"$HOME"/.xinitrc}"
+        confedit_list[xmodmap]="$XDG_CONFIG_HOME/X11/xmodmap"
         confedit_list[xresources]="$XDG_CONFIG_HOME/X11/xresources"
         confedit_list[zathura]="$XDG_CONFIG_HOME/zathura/zathurarc" ;;
-
     "reddit")
         declare -a reddit_list=(
             "r/archlinux"
@@ -170,19 +170,22 @@ case "${0#*-}" in
         websearch[stackoverflow]="https://stackoverflow.com/search?q=" ;;
 
     "youtube")
-        cache_dir="${XDG_CACHE_HOME:-"$HOME/.cache"}"/dm-youtube
+        YT_API_KEY="$(cat "${XDG_CONFIG_HOME}"/api_keys/youtube)"
+        cache_dir="${XDG_CACHE_HOME:-"$HOME/.cache"}/dmscripts/dm-youtube"
         player="${DMPLAYER}" ;;
 
     "yt-music")
-        cache_dir="${XDG_CACHE_HOME:-"$HOME"/.cache}/dm-yt-music"
+        YT_API_KEY="$(cat "${XDG_CONFIG_HOME}"/api_keys/youtube)"
+        cache_dir="${XDG_CACHE_HOME:-"$HOME"/.cache}/dmscripts/dm-yt-music"
         down_dir="$HOME/Music/youtube"
-        player="mpv --no-video --input-ipc-server="$MPV_SOCKET""
+        player="mpv --no-resume-playback --no-video --input-ipc-server="$MPV_SOCKET""
         playing_icon='/usr/share/icons/Papirus/32x32/apps/org.gnome.Music.svg'
         download_icon='/usr/share/icons/Papirus/16x16/apps/youtube-dl.svg' ;;
 
     "yt-rss")
+        YT_API_KEY="$(cat "${XDG_CONFIG_HOME}"/api_keys/youtube)"
         # Use same cache as dm-youtube for recording watch history
-        cache_dir="${XDG_CACHE_HOME:="$HOME/.cache"}/dm-youtube"
+        cache_dir="${XDG_CACHE_HOME:="$HOME/.cache"}/dmscripts/dm-youtube"
         player="${DMPLAYER}"
 
         declare -A youtube_channels
@@ -210,7 +213,7 @@ case "${0#*-}" in
         youtube_channels[NeetCode]="https://www.youtube.com/c/NeetCode" ;;
 
     "radio")
-        player="mpv --no-video --input-ipc-server="${MPV_SOCKET}""
+        player="mpv --no-resume-playback --no-video --input-ipc-server="${MPV_SOCKET}""
         # Your list of online radio stations for the dm-radio script.
         # Syntax: radio_stations[name]="https://www.zeno.fm/radio/your-station"
 
@@ -297,7 +300,7 @@ case "${0#*-}" in
         ;;
 
     "emoji")
-        emoji_file="$XDG_DATA_HOME/dm-emoji/emoji_list" ;;
+        emoji_file="$XDG_DATA_HOME/dmscripts/dm-emoji/emoji_list" ;;
 
     "usbmount")
         err_icon='/usr/share/icons/elementary/devices/24/drive-harddisk.svg'
