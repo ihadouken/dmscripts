@@ -81,6 +81,10 @@ parse_dir() {
 }
 
 main() {
+    # Ensure history file.
+    mkdir -p "$(dirname "$hist_file")"
+    touch "$hist_file"
+
     # Ask for file to upload from current directory
     if [[ $# -lt 1 ]]; then
         parse_dir "$PWD"
