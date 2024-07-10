@@ -76,7 +76,7 @@ case "${0#*-}" in
         declare -A confedit_list
         confedit_list[dmscripts]="$XDG_CONFIG_HOME/dmscripts/config"
         confedit_list[alacritty]="$XDG_CONFIG_HOME/alacritty/alacritty.yml"
-        confedit_list[shell]="$XDG_CONFIG_HOME/sh"
+        confedit_list[shell]="$XDG_CONFIG_HOME/shell"
         confedit_list[scripts]="$HOME/.local/bin"
         confedit_list[bash]="$HOME/.bashrc"
         confedit_list[zsh]="$ZDOTDIR/.zshrc"
