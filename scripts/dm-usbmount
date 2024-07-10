@@ -51,7 +51,7 @@ unmountAll(){
 }
 
 mount(){
-    mountable="$(lsblk -lp | awk '/^\/dev\/sd.*part $/ { print $1 " ("$4")" }')"
+    mountable="$(lsblk -lp | awk '/^\/dev\/(sd.*|nvme.*)part $/ { print $1 " ("$4")" }')"
     [ "$mountable" = "" ] && exit 1
     driveCount "$mountable"
     [ "$count" = "1" ] && options="$mountable" || options="$mountable
