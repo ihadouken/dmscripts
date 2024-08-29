@@ -39,6 +39,8 @@ main() {
         "TomorrowNight"
     )
 
+    declare -A local bat_options
+
     choice="$(printf '%s\n' "${options[@]}" | ${DMENU} 'Choose color scheme:' "${@}")" || exit 1
 
     sed  -i "s/import Colors.*/import Colors.$choice/g" "$XDG_CONFIG_HOME"/xmonad/README.org || echo "Cannot modify README.org"
