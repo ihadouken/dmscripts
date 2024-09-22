@@ -50,7 +50,7 @@ main() {
     sed -i "s/\(colors = colors\).*/\1.$choice/" "$XDG_CONFIG_HOME"/qtile/config.py
     pgrep -f 'qtile start' && qtile cmd-obj -o cmd -f reload_config
 
-    sed -i "s/^colors: .*/colors: \*$choice/g" "$XDG_CONFIG_HOME"/alacritty/alacritty.yml
+    sed -i "s/^colors: .*/colors: \*$choice/g" "$XDG_CONFIG_HOME"/alacritty/alacritty.toml
 
     # TODO: Add DOOM EMACS
     [[ ! -f "/usr/local/bin/rice_helper.sh" ]] && echo "Rice helper not found" || sudo rice_helper.sh "$choice"
